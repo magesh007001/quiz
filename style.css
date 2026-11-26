@@ -1,0 +1,62 @@
+// Provided question array (answer = position of the correct choice)
+const questions = [
+  { text: 'Which tag is a heading?', choices: ['h1', 'p', 'div'], answer: 0 },
+  { text: 'Which language styles a page?', choices: ['CSS', 'SQL', 'C++'], answer: 0 },
+  { text: 'How many days in a week?', choices: ['5', '7', '9'], answer: 1 }
+];
+
+let index = 0, score = 0, answered = false;
+
+const answersBox = document.getElementById('answers');
+const feedback = document.getElementById('feedback');
+const scoreEl = document.getElementById('score');
+const nextBtn = document.getElementById('next');
+
+function render() {
+  const q = questions[index];
+  document.getElementById('question').textContent = q.text;
+  feedback.textContent = '';
+  answered = false;
+  answersBox.replaceChildren();
+
+  // One button per answer choice
+  q.choices.forEach((choice, i) => {
+    const button = document.createElement('button');
+    button.textContent = choice;
+    button.onclick = () => {
+      if (answered) return;          // count each question only once
+      answered = true;
+      if (i === q.answer) {
+        score++;
+        feedback.textContent = 'Correct!';
+      } else {
+        feedback.textContent = 'Incorrect. The right answer is: ' + q.choices[q.answer];
+      }
+      // lock all buttons after the first click
+      answersBox.querySelectorAll('button').forEach(b => b.disabled = true);
+    };
+    answersBox.append(button);
+  });
+
+  nextBtn.textContent = index === questions.length - 1 ? 'Finish' : 'Next';
+}
+
+nextBtn.onclick = () => {
+  if (!answered) {                   // require an answer first
+    feedback.textContent = 'Please choose an answer first.';
+    return;
+  }
+  index++;
+  if (index < questions.length) {
+    render();
+  } else {
+    // Final screen: score out of three
+    document.getElementById('question').textContent = 'Quiz finished';
+    answersBox.replaceChildren();
+    feedback.textContent = '';
+    nextBtn.hidden = true;
+    scoreEl.textContent = 'Your score: ' + score + ' out of ' + questions.length;
+  }
+};
+
+render();
